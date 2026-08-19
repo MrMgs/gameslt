@@ -1,6 +1,6 @@
 # 🧪 Quantum Ooze
 
-![Quantum Ooze](app_icon.png)
+![Quantum Ooze](icon.png)
 
 **Quantum Ooze** is an animated HTML5 slot game with a sci-fi laboratory theme, responsive UI, interactive reel mechanics, bonus features, sound effects, and Android support.
 
