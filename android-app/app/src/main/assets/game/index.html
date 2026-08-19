@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Quantum Ooze — HTML5 Slot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game" aria-label="Quantum Ooze slot game">
+    <img class="lab-art" src="assets/quantum-lab-v3.png" alt="An eccentric alien scientist in a garage laboratory">
+    <div class="mobile-bg-fill" aria-hidden="true"></div>
+    <section class="start-screen" id="startScreen" aria-label="Main menu">
+      <div class="menu-portal"></div>
+      <div class="menu-card">
+        <div class="menu-logo"><span>QUANTUM</span><b>OOZE</b></div>
+        <p>INTERDIMENSIONAL SLOTS</p>
+        <button class="play-game" id="playGame">▶ PLAY</button>
+        <button class="open-settings" id="openSettings">⚙ SETTINGS</button>
+      </div>
+      <div class="settings-card" id="settingsCard" aria-hidden="true">
+        <h2>LAB SETTINGS</h2>
+        <label><span>SOUND</span><input type="checkbox" id="settingsSound" checked><i></i></label>
+        <label><span>TURBO SPIN</span><input type="checkbox" id="settingsTurbo"><i></i></label>
+        <button id="closeSettings">DONE</button>
+      </div>
+    </section>
+    <header class="brand" aria-label="Quantum Ooze"><span data-text="QUANTUM">QUANTUM</span><b data-text="OOZE">OOZE</b><i></i></header>
+    <section class="top-ui">
+      <div class="multiplier"><small>MEGA MULTIPLIER</small><strong id="multi">×1</strong></div>
+      <div class="meter"><label>PORTAL INSTABILITY</label><div class="meter-track"><i id="meterFill"></i></div><div class="ticks"><span>×2</span><span>×3</span><span>×5</span><span>×10</span><span>×25</span></div></div>
+    </section>
+    <canvas id="fx"></canvas>
+    <div class="screen-flash" id="screenFlash"></div>
+    <section class="reel-shell" id="reelShell">
+      <div class="reels" id="reels" aria-label="Five slot reels"></div>
+      <div class="feature-banner" id="featureBanner"><small>EXPERIMENTAL REACTION</small><b id="featureText">WILD REEL ×5</b></div>
+    </section>
+    <div class="message" id="message">GOOD LUCK, TEST SUBJECT!</div>
+    <aside class="free-spins"><small>FREE SPINS</small><b id="freeSpins">0</b></aside>
+    <footer class="controls">
+      <div class="round-buttons"><button id="menuBtn" aria-label="Pay table">☰</button><button id="soundBtn" aria-label="Toggle sound">♪</button></div>
+      <div class="stat balance"><small>BALANCE</small><b id="balance">$1,000.00</b></div>
+      <div class="bet-control"><button id="betDown">−</button><div class="stat"><small>BET</small><b id="bet">$10.00</b></div><button id="betUp">+</button></div>
+      <button class="max" id="maxBet">MAX<br>BET</button>
+      <button class="spin" id="spin" aria-label="Spin reels"><span class="spin-icon"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M25 51A28 28 0 0 1 72 31"/><path d="M70 18l17 16-22 7z"/><path d="M75 49A28 28 0 0 1 28 69"/><path d="M30 82L13 66l22-7z"/></svg></span></button>
+      <button class="auto" id="auto">AUTO</button>
+      <button class="turbo" id="turbo">⚡ TURBO</button>
+      <div class="stat win"><small>WIN</small><b id="win">$0.00</b></div>
+    </footer>
+    <div class="win-counter" id="winCounter"><small>TOTAL WIN</small><b>$0.00</b></div>
+    <dialog id="paytable"><button class="close" id="closePay">×</button><h2>LAB NOTES</h2><p>Match 3+ symbols from the left on any row. Wilds substitute for every symbol except Scatter. Three scatters award 8 free spins.</p><div id="payouts"></div></dialog>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>

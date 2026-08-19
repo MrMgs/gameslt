@@ -1,0 +1,45 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.quantumooze.slot.app-debug-4:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "C:\\Users\\tahao\\Desktop\\gameslt\\android-app\\app\\src\\main\\res\\values\\colors.xml",
+                    "from": {
+                        "startLines": "1",
+                        "startColumns": "11",
+                        "startOffsets": "50",
+                        "endColumns": "56",
+                        "endOffsets": "95"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "49",
+                        "endOffsets": "100"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\tahao\\Desktop\\gameslt\\android-app\\app\\src\\main\\res\\values\\styles.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "10",
+                        "endColumns": "12",
+                        "endOffsets": "572"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "105",
+                        "endLines": "11",
+                        "endColumns": "12",
+                        "endOffsets": "622"
+                    }
+                }
+            ]
+        }
+    ]
+}

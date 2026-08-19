@@ -1,0 +1,4893 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover"
+/>
+
+<title>Crazy Lab — HTML5 Slot Demo</title>
+
+<style>
+:root{
+  --cyan:#27f6ff;
+  --green:#33ff62;
+  --acid:#8bff00;
+  --purple:#db32ff;
+  --ink:#02090f;
+  --panel:#02131c;
+  --orange:#ff9e1f;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  min-height:100%;
+  background:#01070c;
+  font-family:
+    Impact,
+    Haettenschweiler,
+    "Arial Narrow Bold",
+    system-ui,
+    sans-serif;
+  color:white;
+  overflow:hidden;
+}
+
+body{
+  display:grid;
+  place-items:center;
+}
+
+/* =========================================================
+   MAIN GAME STAGE
+========================================================= */
+
+#stage{
+  position:relative;
+  width:min(100vw,1536px);
+  aspect-ratio:3/2;
+  overflow:hidden;
+
+  background:
+    #021019
+    url("assets/crazy-lab-background-no-quotes.png")
+    center / 100% 100%
+    no-repeat;
+
+  box-shadow:
+    0 0 80px rgba(0,255,214,.2);
+
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+#stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(
+      circle at 54% 48%,
+      transparent 55%,
+      rgba(0,0,0,.22) 100%
+    );
+}
+
+/* =========================================================
+   REELS
+========================================================= */
+
+.reel-window{
+  position:absolute;
+
+  left:27.25%;
+  top:17.15%;
+
+  width:63.05%;
+  height:60.35%;
+
+  z-index:3;
+
+  border-radius:3.6% / 5.5%;
+  overflow:hidden;
+
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+
+  background:rgba(0,6,14,.96);
+
+  box-shadow:
+    inset 0 0 30px #00ff9a99,
+    0 0 13px #00ff8f99;
+}
+
+.reel{
+  position:relative;
+
+  display:grid;
+  grid-template-rows:repeat(3,1fr);
+
+  border-right:2px solid rgba(33,255,214,.82);
+
+  background:
+    linear-gradient(
+      180deg,
+      #03101c,
+      #00131d 48%,
+      #03101c
+    );
+
+  overflow:hidden;
+}
+
+.reel:last-child{
+  border-right:0;
+}
+
+.cell{
+  position:relative;
+
+  display:grid;
+  place-items:center;
+
+  min-height:0;
+
+  overflow:hidden;
+
+  border-bottom:
+    1px solid rgba(38,246,255,.08);
+
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(49,246,255,.07),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.02),
+      rgba(0,0,0,0)
+    );
+}
+
+.cell:last-child{
+  border-bottom:0;
+}
+
+.cell img{
+  display:block;
+
+  width:88%;
+  height:88%;
+
+  object-fit:contain;
+
+  filter:
+    saturate(1.14)
+    contrast(1.06)
+    drop-shadow(
+      0 4px 10px rgba(0,0,0,.28)
+    );
+
+  transition:
+    transform .18s ease,
+    filter .18s ease,
+    opacity .18s ease;
+
+  mix-blend-mode:normal;
+}
+
+/* spinning blur */
+
+.reel.spinning .cell img{
+  animation:
+    spinBlur .105s linear infinite;
+
+  filter:
+    blur(4px)
+    brightness(1.2)
+    saturate(1.4);
+}
+
+@keyframes spinBlur{
+  0%{
+    transform:
+      translateY(-20%)
+      scale(.94);
+  }
+
+  49%{
+    opacity:.7;
+  }
+
+  50%{
+    transform:
+      translateY(20%)
+      scale(1.08);
+  }
+
+  100%{
+    transform:
+      translateY(-20%)
+      scale(.94);
+  }
+}
+
+/* winning symbol */
+
+.cell.win::before{
+  content:"";
+
+  position:absolute;
+  inset:4%;
+
+  border:
+    3px solid #eaff63;
+
+  border-radius:18%;
+
+  box-shadow:
+    0 0 8px #fff,
+    0 0 22px #78ff00,
+    0 0 42px #00ffc6;
+
+  z-index:4;
+
+  animation:
+    winPulse .45s ease-in-out
+    infinite alternate;
+
+  pointer-events:none;
+}
+
+.cell.win img{
+  transform:scale(1.08);
+
+  filter:
+    brightness(1.35)
+    saturate(1.45)
+    drop-shadow(
+      0 0 14px #8cff00
+    );
+}
+
+@keyframes winPulse{
+  to{
+    box-shadow:
+      0 0 14px #fff,
+      0 0 34px #d7ff00,
+      0 0 54px #00ffc6;
+  }
+}
+
+.cell.scatter-hit img{
+  animation:
+    scatterPulse .65s
+    ease-in-out infinite alternate;
+}
+
+@keyframes scatterPulse{
+  to{
+    transform:
+      scale(1.16)
+      rotate(3deg);
+
+    filter:
+      brightness(1.45)
+      drop-shadow(
+        0 0 20px #68ff00
+      );
+  }
+}
+
+/* =========================================================
+   WIN PARTICLES
+========================================================= */
+
+#fx{
+  position:absolute;
+  inset:0;
+  z-index:8;
+  pointer-events:none;
+}
+
+.particle{
+  position:absolute;
+
+  width:1.2%;
+  aspect-ratio:1;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle,
+      #fff 0 16%,
+      #a9ff00 20% 55%,
+      transparent 60%
+    );
+
+  box-shadow:
+    0 0 12px #55ff00;
+
+  animation:
+    fly 1.2s ease-out forwards;
+}
+
+@keyframes fly{
+  0%{
+    transform:
+      translate(0,0)
+      scale(.4);
+
+    opacity:1;
+  }
+
+  100%{
+    transform:
+      translate(
+        var(--x),
+        var(--y)
+      )
+      scale(1.7);
+
+    opacity:0;
+  }
+}
+
+/* =========================================================
+   BIG WIN
+========================================================= */
+
+#bigWin{
+  position:absolute;
+
+  left:35%;
+  top:35%;
+
+  width:50%;
+
+  z-index:11;
+
+  text-align:center;
+
+  font-size:
+    clamp(30px,6vw,96px);
+
+  font-weight:900;
+  line-height:.85;
+
+  color:#b8ff24;
+
+  -webkit-text-stroke:
+    2px #003509;
+
+  text-shadow:
+    0 0 10px #fff,
+    0 0 25px #2cff00,
+    0 6px 0 #073c12;
+
+  transform:scale(0);
+
+  pointer-events:none;
+}
+
+#bigWin.show{
+  animation:
+    bigWin 1.8s
+    cubic-bezier(.2,1.4,.3,1)
+    forwards;
+}
+
+#bigWin small{
+  display:block;
+
+  color:#fff;
+
+  font:
+    700 .36em system-ui;
+
+  text-shadow:
+    0 0 18px #24f6ff;
+
+  -webkit-text-stroke:0;
+}
+
+@keyframes bigWin{
+  0%{
+    transform:
+      scale(0)
+      rotate(-6deg);
+  }
+
+  18%{
+    transform:
+      scale(1.12)
+      rotate(2deg);
+  }
+
+  30%,
+  76%{
+    transform:scale(1);
+  }
+
+  100%{
+    transform:scale(1.35);
+    opacity:0;
+  }
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.overlay-text{
+  position:absolute;
+  z-index:6;
+
+  text-align:center;
+
+  text-shadow:
+    0 0 8px currentColor;
+
+  font-family:
+    Impact,
+    system-ui,
+    sans-serif;
+
+  letter-spacing:.02em;
+}
+
+#status{
+  left:35.5%;
+  top:77.4%;
+
+  width:38%;
+  height:3.6%;
+
+  display:grid;
+  place-items:center;
+
+  color:#52ffd1;
+
+  font-size:
+    clamp(7px,1vw,17px);
+
+  background:transparent;
+  border:0;
+  box-shadow:none;
+}
+
+/* =========================================================
+   PREMIUM BALANCE / BET / WIN DISPLAYS
+========================================================= */
+
+.clean-hud{
+  position:absolute;
+  z-index:8;
+
+  pointer-events:none;
+
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.14),
+      rgba(255,255,255,0) 18%
+    ),
+    linear-gradient(
+      180deg,
+      #17303d 0%,
+      #0a1a24 18%,
+      #051018 55%,
+      #01070b 100%
+    );
+
+  border:
+    2px solid rgba(95,241,255,.88);
+
+  border-radius:22px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    inset 0 -16px 20px rgba(0,0,0,.72),
+    0 0 0 2px rgba(0,0,0,.4),
+    0 10px 18px rgba(0,0,0,.38),
+    0 0 20px rgba(45,234,255,.34);
+}
+
+.clean-hud::before{
+  content:"";
+
+  position:absolute;
+  inset:4px;
+
+  border-radius:18px;
+
+  pointer-events:none;
+
+  border:
+    1px solid rgba(158,255,251,.16);
+
+  box-shadow:
+    inset 0 10px 16px
+      rgba(255,255,255,.04),
+    inset 0 -12px 16px
+      rgba(0,0,0,.55);
+}
+
+/*
+   This creates an independent
+   screen for the value.
+
+   The money is contained only
+   inside this screen area.
+*/
+
+.clean-hud::after{
+  content:"";
+
+  position:absolute;
+
+  left:5.3%;
+  right:5.3%;
+
+  bottom:10.5%;
+
+  height:46.5%;
+
+  border-radius:14px;
+
+  pointer-events:none;
+
+  background:
+    linear-gradient(
+      180deg,
+      #081a25 0%,
+      #03111a 45%,
+      #01070c 100%
+    );
+
+  box-shadow:
+    inset 0 2px 6px
+      rgba(255,255,255,.06),
+    inset 0 -10px 12px
+      rgba(0,0,0,.86),
+    0 0 0 1px
+      rgba(71,236,255,.22),
+    0 0 14px
+      rgba(0,222,255,.08);
+}
+
+.clean-label{
+  position:absolute;
+
+  left:8%;
+  right:8%;
+  top:10.5%;
+
+  height:22%;
+
+  display:grid;
+  place-items:center;
+
+  z-index:2;
+
+  color:#47efff;
+
+  font:
+    900 clamp(6px,.8vw,14px)
+    system-ui,
+    sans-serif;
+
+  letter-spacing:.12em;
+
+  text-transform:uppercase;
+
+  text-shadow:
+    0 0 7px
+    rgba(71,239,255,.8);
+}
+
+#balancePanel{
+  left:6.35%;
+  top:84%;
+
+  width:17%;
+  height:10.7%;
+}
+
+#betPanel{
+  left:24%;
+  top:84%;
+
+  width:17.6%;
+  height:10.7%;
+}
+
+/*
+   Important:
+   The balance / bet / win text
+   is kept inside one single
+   value window.
+*/
+
+#balanceValue,
+#betValue,
+#winValue{
+  position:absolute;
+
+  left:8%;
+  right:8%;
+
+  bottom:11.5%;
+
+  height:43%;
+
+  display:grid;
+  place-items:center;
+
+  z-index:3;
+
+  color:#fff;
+
+  font-family:
+    system-ui,
+    sans-serif;
+
+  font-weight:950;
+
+  white-space:nowrap;
+
+  font-variant-numeric:
+    tabular-nums lining-nums;
+
+  text-shadow:
+    0 2px 2px rgba(0,0,0,.95),
+    0 0 8px rgba(255,255,255,.16);
+}
+
+#balanceValue{
+  font-size:
+    clamp(10px,1.52vw,24px);
+
+  letter-spacing:.01em;
+}
+
+#betValue{
+  font-size:
+    clamp(10px,1.48vw,23px);
+
+  letter-spacing:.01em;
+}
+
+#winPanel{
+  left:82.55%;
+  top:84%;
+
+  width:13.55%;
+  height:10.7%;
+
+  border-color:
+    rgba(54,239,255,.8);
+}
+
+#winPanel .clean-label{
+  color:#38f2ff;
+}
+
+#winValue{
+  font-size:
+    clamp(10px,1.5vw,24px);
+}
+
+/* =========================================================
+   FREE SPINS DISPLAY
+========================================================= */
+
+#freePanel{
+  position:absolute;
+  z-index:9;
+
+  left:90.55%;
+  top:40.2%;
+
+  width:8.35%;
+  height:16.25%;
+
+  pointer-events:none;
+
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.12),
+      rgba(255,255,255,0) 18%
+    ),
+    linear-gradient(
+      180deg,
+      #153522 0%,
+      #071b11 46%,
+      #020a06 100%
+    );
+
+  border:
+    2px solid rgba(94,255,151,.84);
+
+  border-radius:16px;
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255,255,255,.15),
+    inset 0 -14px 18px
+      rgba(0,0,0,.72),
+    0 0 0 2px
+      rgba(0,0,0,.35),
+    0 0 16px
+      rgba(38,255,114,.28);
+}
+
+#freePanel::before{
+  content:"";
+
+  position:absolute;
+  inset:4px;
+
+  border:
+    1px solid rgba(126,255,171,.18);
+
+  border-radius:12px;
+}
+
+#freePanel::after{
+  content:"";
+
+  position:absolute;
+
+  left:9%;
+  right:9%;
+
+  bottom:10%;
+
+  height:47%;
+
+  border-radius:12px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #07170d,
+      #020c07 60%,
+      #000604 100%
+    );
+
+  box-shadow:
+    inset 0 2px 6px
+      rgba(255,255,255,.05),
+    inset 0 -10px 12px
+      rgba(0,0,0,.84),
+    0 0 0 1px
+      rgba(88,255,139,.16);
+}
+
+#freeLabel{
+  position:absolute;
+
+  left:7%;
+  right:7%;
+
+  top:11%;
+
+  height:21%;
+
+  display:grid;
+  place-items:center;
+
+  z-index:2;
+
+  color:#62ff9d;
+
+  font-family:
+    system-ui,
+    sans-serif;
+
+  font-weight:950;
+
+  font-size:
+    clamp(6px,.82vw,14px);
+
+  letter-spacing:.08em;
+
+  text-shadow:
+    0 0 7px
+      rgba(31,255,112,.7);
+
+  white-space:nowrap;
+}
+
+#freeValue{
+  position:absolute;
+
+  left:10%;
+  right:10%;
+
+  bottom:11%;
+
+  height:42%;
+
+  display:grid;
+  place-items:center;
+
+  z-index:3;
+
+  color:#75ffa8;
+
+  font-family:
+    Impact,
+    system-ui,
+    sans-serif;
+
+  font-weight:950;
+
+  font-size:
+    clamp(18px,2.9vw,48px);
+
+  line-height:1;
+
+  background:transparent;
+
+  text-shadow:
+    0 0 8px #1dff73,
+    0 0 18px rgba(0,255,96,.45);
+}
+
+/* =========================================================
+   MEGA MULTIPLIER
+========================================================= */
+
+#multiplierPanel{
+  position:absolute;
+
+  z-index:8;
+
+  left:40.15%;
+  top:2.05%;
+
+  width:17.25%;
+  height:12.5%;
+
+  pointer-events:none;
+
+  background:
+    linear-gradient(
+      180deg,
+      #09222d 0%,
+      #03131b 58%,
+      #01070b 100%
+    );
+
+  border:
+    3px solid #39efff;
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  box-shadow:
+    inset 0 0 22px
+      rgba(0,0,0,.95),
+    0 0 10px #00dbff,
+    0 0 20px
+      rgba(134,255,0,.18);
+}
+
+#multiplierPanel::before{
+  content:"";
+
+  position:absolute;
+  inset:5px;
+
+  border-radius:13px;
+
+  border:
+    1px solid rgba(129,255,25,.38);
+
+  box-shadow:
+    inset 0 10px 12px
+      rgba(255,255,255,.03),
+    inset 0 -12px 12px
+      rgba(0,0,0,.4);
+}
+
+#multiplierLabel{
+  position:absolute;
+
+  left:0;
+  right:0;
+  top:12%;
+
+  text-align:center;
+
+  color:#86ffbf;
+
+  font:
+    950 clamp(7px,.92vw,15px)
+    system-ui,
+    sans-serif;
+
+  letter-spacing:.09em;
+
+  text-shadow:
+    0 0 8px #20ff8c;
+}
+
+#multiplier{
+  position:absolute;
+
+  left:0;
+  right:0;
+
+  bottom:8%;
+
+  height:56%;
+
+  display:grid;
+  place-items:center;
+
+  z-index:1;
+
+  color:#eaffff;
+
+  font-size:
+    clamp(19px,3.35vw,56px);
+
+  line-height:.9;
+
+  background:transparent;
+
+  text-shadow:
+    0 0 8px #fff,
+    0 0 18px #00bfff;
+}
+
+/* =========================================================
+   PORTAL INSTABILITY
+========================================================= */
+
+#portalPanel{
+  position:absolute;
+
+  z-index:9;
+
+  left:65.6%;
+  top:1.55%;
+
+  width:29.65%;
+  height:15%;
+
+  pointer-events:none;
+
+  overflow:hidden;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #1d2129 0%,
+      #10151b 10%,
+      #05080d 52%,
+      #010305 100%
+    );
+
+  border:
+    2px solid rgba(138,164,180,.28);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -18px 20px rgba(0,0,0,.76),
+    0 0 0 2px rgba(0,0,0,.45),
+    0 10px 20px rgba(0,0,0,.34),
+    0 0 16px rgba(114,79,255,.22);
+}
+
+#portalPanel::before{
+  content:"";
+
+  position:absolute;
+  inset:4px;
+
+  border-radius:18px;
+
+  border:
+    1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    inset 0 10px 14px rgba(255,255,255,.03),
+    inset 0 -8px 10px rgba(0,0,0,.46);
+}
+
+#portalTitle{
+  position:absolute;
+
+  left:4.5%;
+  top:8%;
+
+  width:44%;
+  height:20%;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f1114,
+      #040507 100%
+    );
+
+  border:
+    1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255,255,255,.08),
+    0 4px 8px
+      rgba(0,0,0,.25);
+
+  color:#8cff42;
+
+  font:
+    900 clamp(6px,.94vw,15px)
+    system-ui,
+    sans-serif;
+
+  letter-spacing:.07em;
+
+  text-transform:uppercase;
+
+  text-shadow:
+    0 0 8px
+      rgba(149,255,82,.55);
+}
+
+#meter{
+  position:absolute;
+
+  z-index:7;
+
+  left:5.2%;
+  right:5.2%;
+
+  top:39%;
+
+  height:24%;
+
+  border-radius:999px;
+
+  overflow:hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      #1f2127 0%,
+      #0e1015 38%,
+      #06080d 100%
+    );
+
+  box-shadow:
+    inset 0 4px 8px
+      rgba(0,0,0,.85),
+    inset 0 1px 0
+      rgba(255,255,255,.08),
+    0 0 0 1px
+      rgba(255,255,255,.08),
+    0 4px 8px
+      rgba(0,0,0,.3);
+}
+
+#meter::before{
+  content:"";
+
+  position:absolute;
+  inset:0;
+
+  pointer-events:none;
+
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 19.2%,
+      rgba(255,255,255,.12) 19.2% 19.7%,
+      transparent 19.7% 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.22),
+      transparent 58%
+    );
+
+  mix-blend-mode:screen;
+
+  opacity:.35;
+}
+
+#meterFill{
+  width:0;
+  height:100%;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #87ff00 0%,
+      #3cff71 26%,
+      #29ddff 56%,
+      #7b2bff 78%,
+      #ff37f5 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.35),
+    0 0 16px rgba(99,255,66,.42),
+    0 0 36px rgba(163,66,255,.2);
+
+  transition:
+    width .5s
+    cubic-bezier(.2,.8,.2,1);
+}
+
+#meterTicks{
+  position:absolute;
+
+  left:7%;
+  right:7%;
+
+  bottom:10.5%;
+
+  height:18%;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  color:#8fff67;
+
+  font:
+    900 clamp(8px,1.12vw,18px)
+    system-ui,
+    sans-serif;
+
+  letter-spacing:.02em;
+
+  text-transform:uppercase;
+
+  text-shadow:
+    0 0 7px
+      rgba(143,255,103,.55),
+    0 1px 1px
+      rgba(0,0,0,.9);
+}
+
+#meterTicks span:last-child{
+  color:#f09dff;
+
+  text-shadow:
+    0 0 8px
+      rgba(240,157,255,.55),
+    0 1px 1px
+      rgba(0,0,0,.9);
+}
+
+/* =========================================================
+   LIVE SCIENTIST TEXT
+========================================================= */
+
+#dialogueCleanZone{
+  display:none !important;
+  background:none !important;
+}
+
+#speech{
+  position:absolute;
+
+  left:15.9%;
+  top:28.6%;
+
+  width:9.2%;
+
+  z-index:7;
+
+  display:block;
+
+  text-align:left;
+
+  padding:0;
+  margin:0;
+
+  background:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+
+  backdrop-filter:none !important;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+
+  font-weight:850;
+
+  font-size:
+    clamp(10px,1.08vw,18px);
+
+  line-height:1.16;
+
+  color:#f5fff4;
+
+  max-height:3.6em;
+
+  overflow:hidden;
+
+  text-wrap:balance;
+
+  text-shadow:
+    -1px 0 #000,
+    1px 0 #000,
+    0 -1px #000,
+    0 1px #000,
+    0 0 7px rgba(0,0,0,.95),
+    0 0 9px rgba(64,255,135,.35);
+
+  transition:
+    opacity .14s ease,
+    transform .14s ease;
+}
+
+#speech.change{
+  opacity:.15;
+  transform:translateY(5px);
+}
+
+/* =========================================================
+   PREMIUM BUTTON SYSTEM
+========================================================= */
+
+.hotspot{
+  --accent:#35efff;
+  --accent2:#0f7c93;
+  --surface1:#183845;
+  --surface2:#071118;
+  --glow:rgba(53,239,255,.42);
+
+  position:absolute;
+
+  z-index:14;
+
+  cursor:pointer;
+
+  outline:none;
+
+  touch-action:manipulation;
+
+  border:0;
+
+  color:#f7ffff;
+
+  overflow:hidden;
+
+  background:
+    radial-gradient(
+      circle at 34% 20%,
+      rgba(255,255,255,.34),
+      transparent 18%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.18) 0%,
+      rgba(255,255,255,.03) 18%,
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      var(--surface1) 0%,
+      #102732 36%,
+      var(--surface2) 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255,255,255,.28),
+    inset 0 -12px 16px
+      rgba(0,0,0,.72),
+    inset 0 0 0 3px
+      rgba(6,17,24,.92),
+    0 0 0 2px
+      color-mix(
+        in srgb,
+        var(--accent) 45%,
+        black
+      ),
+    0 6px 0 rgba(1,8,11,.95),
+    0 11px 16px rgba(0,0,0,.48),
+    0 0 18px var(--glow);
+
+  transition:
+    transform .11s ease,
+    filter .16s ease,
+    box-shadow .16s ease;
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  font-weight:950;
+
+  letter-spacing:.025em;
+
+  text-shadow:
+    0 1px 1px #000,
+    0 0 7px var(--accent);
+}
+
+.hotspot::after{
+  content:"";
+
+  position:absolute;
+
+  left:9%;
+  right:9%;
+
+  top:7%;
+
+  height:28%;
+
+  border-radius:999px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.4),
+      rgba(255,255,255,.05)
+    );
+
+  opacity:.72;
+
+  pointer-events:none;
+}
+
+.hotspot:hover{
+  filter:
+    brightness(1.08)
+    saturate(1.08);
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255,255,255,.34),
+    inset 0 -10px 15px
+      rgba(0,0,0,.67),
+    inset 0 0 0 3px
+      rgba(6,17,24,.92),
+    0 0 0 2px
+      color-mix(
+        in srgb,
+        var(--accent) 55%,
+        black
+      ),
+    0 7px 0 rgba(1,8,11,.95),
+    0 12px 18px rgba(0,0,0,.52),
+    0 0 24px var(--glow);
+}
+
+.hotspot:active{
+  transform:
+    translateY(4px)
+    scale(.985);
+
+  box-shadow:
+    inset 0 4px 11px
+      rgba(0,0,0,.82),
+    inset 0 0 0 3px
+      rgba(5,14,20,.95),
+    0 2px 0
+      rgba(1,8,11,.95),
+    0 5px 10px
+      rgba(0,0,0,.42),
+    0 0 14px
+      var(--glow);
+}
+
+.hotspot:focus-visible{
+  outline:2px solid white;
+  outline-offset:3px;
+}
+
+/* =========================================================
+   SPIN BUTTON
+========================================================= */
+
+#spinBtn{
+  --accent:#98ff33;
+  --surface1:#5ceb31;
+  --surface2:#0c4c21;
+  --glow:rgba(88,255,64,.66);
+
+  left:46.1%;
+  top:79.3%;
+
+  width:11.9%;
+  height:17.2%;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      circle at 36% 24%,
+      rgba(255,255,255,.56),
+      transparent 16%
+    ),
+    radial-gradient(
+      circle at 50% 38%,
+      #79ff49 0%,
+      #2cd235 44%,
+      #0d7d28 70%,
+      #063317 100%
+    );
+
+  box-shadow:
+    inset 0 2px 0
+      rgba(255,255,255,.3),
+    inset 0 -16px 20px
+      rgba(0,0,0,.55),
+    inset 0 0 0 5px
+      #081f11,
+    inset 0 0 0 8px
+      rgba(197,255,113,.54),
+    0 0 0 2px
+      rgba(144,255,68,.55),
+    0 6px 0 #031509,
+    0 12px 18px
+      rgba(0,0,0,.72),
+    0 0 25px
+      rgba(77,255,71,.62),
+    0 0 48px
+      rgba(49,255,87,.28);
+}
+
+#spinBtn::before{
+  content:"SPIN";
+
+  position:absolute;
+
+  left:0;
+  right:0;
+
+  top:42%;
+
+  transform:
+    translateY(-50%);
+
+  text-align:center;
+
+  font-size:
+    clamp(14px,1.65vw,26px);
+
+  letter-spacing:.1em;
+
+  line-height:1;
+
+  color:#f8fff0;
+
+  text-shadow:
+    0 2px 2px
+      rgba(0,0,0,.55),
+    0 0 8px #fff,
+    0 0 14px #9dff48;
+}
+
+#spinBtn::after{
+  left:19%;
+  right:19%;
+
+  top:11%;
+
+  height:24%;
+
+  opacity:.68;
+}
+
+#spinBtn:hover{
+  filter:
+    brightness(1.1)
+    saturate(1.1);
+
+  transform:scale(1.012);
+}
+
+#spinBtn:active{
+  transform:
+    translateY(5px)
+    scale(.975);
+}
+
+/* =========================================================
+   AUTO
+========================================================= */
+
+#autoBtn{
+  --accent:#f05dff;
+  --surface1:#7e2db1;
+  --surface2:#240938;
+  --glow:rgba(216,76,255,.56);
+
+  left:59.3%;
+  top:84%;
+
+  width:9.9%;
+  height:8%;
+
+  border-radius:24px;
+}
+
+#autoBtn::before{
+  content:"AUTO";
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-size:
+    clamp(9px,1.24vw,20px);
+
+  letter-spacing:.08em;
+}
+
+#autoBtn.active{
+  --accent:#ff9cff;
+  --surface1:#bb42ec;
+  --surface2:#5a1474;
+  --glow:rgba(230,84,255,.84);
+
+  box-shadow:
+    inset 0 1px 0
+      rgba(255,255,255,.32),
+    inset 0 -10px 14px
+      rgba(0,0,0,.56),
+    inset 0 0 0 3px
+      rgba(21,8,28,.9),
+    0 0 0 2px
+      rgba(255,145,255,.55),
+    0 6px 0 #180520,
+    0 0 30px var(--glow);
+}
+
+#autoBtn.active::before{
+  content:"AUTO •";
+}
+
+/* =========================================================
+   TURBO
+========================================================= */
+
+#turboBtn{
+  --accent:#a0ff41;
+  --surface1:#2b9131;
+  --surface2:#0a2610;
+  --glow:rgba(115,255,56,.46);
+
+  left:69.35%;
+  top:84%;
+
+  width:11%;
+  height:8%;
+
+  border-radius:24px;
+}
+
+#turboBtn::before{
+  content:"⚡ TURBO";
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-size:
+    clamp(8px,1.11vw,18px);
+
+  color:#e4ffaf;
+
+  letter-spacing:.04em;
+}
+
+#turboBtn.active{
+  --surface1:#58d125;
+  --surface2:#185c11;
+  --glow:rgba(132,255,54,.82);
+}
+
+#turboBtn.active::before{
+  color:#fbffd4;
+
+  text-shadow:
+    0 0 5px #fff,
+    0 0 14px #88ff25;
+}
+
+/* =========================================================
+   BET - / +
+========================================================= */
+
+#minusBtn,
+#plusBtn{
+  width:4.25%;
+  height:6.95%;
+
+  border-radius:50%;
+}
+
+#minusBtn{
+  --accent:#47f2ff;
+  --surface1:#1f4758;
+  --surface2:#081119;
+  --glow:rgba(71,242,255,.38);
+
+  left:22.95%;
+  top:85.9%;
+}
+
+#plusBtn{
+  --accent:#9aff45;
+  --surface1:#2f6634;
+  --surface2:#0b130b;
+  --glow:rgba(114,255,58,.38);
+
+  left:36.45%;
+  top:85.9%;
+}
+
+#minusBtn::before,
+#plusBtn::before{
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-size:
+    clamp(18px,2.1vw,34px);
+
+  font-weight:700;
+
+  line-height:1;
+}
+
+#minusBtn::before{
+  content:"−";
+}
+
+#plusBtn::before{
+  content:"+";
+}
+
+/* =========================================================
+   MAX BET
+========================================================= */
+
+#maxBtn{
+  --accent:#73ebff;
+  --surface1:#1b6282;
+  --surface2:#081923;
+  --glow:rgba(55,223,255,.48);
+
+  left:41%;
+  top:83.8%;
+
+  width:5.8%;
+  height:10%;
+
+  border-radius:16px;
+}
+
+#maxBtn::before{
+  content:"MAX\A BET";
+
+  white-space:pre;
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  text-align:center;
+
+  font-size:
+    clamp(7px,.9vw,14px);
+
+  line-height:.88;
+
+  color:#d5fbff;
+
+  letter-spacing:.06em;
+}
+
+/* =========================================================
+   SMALL CONTROL BUTTONS
+========================================================= */
+
+#infoBtn,
+#menuBtn,
+#soundBtn,
+#fullBtn{
+  --accent:#82ecff;
+  --surface1:#233c49;
+  --surface2:#071017;
+  --glow:rgba(82,226,255,.32);
+
+  border-radius:50%;
+}
+
+#menuBtn{
+  left:.8%;
+  top:85.95%;
+
+  width:4.5%;
+  height:7.25%;
+}
+
+#infoBtn{
+  left:5.75%;
+  top:85.95%;
+
+  width:4.65%;
+  height:7.2%;
+}
+
+#soundBtn{
+  left:88.55%;
+  top:1.25%;
+
+  width:4.95%;
+  height:7.55%;
+}
+
+#fullBtn{
+  left:94.08%;
+  top:1.25%;
+
+  width:4.95%;
+  height:7.55%;
+}
+
+#menuBtn::before{
+  content:"☰";
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-size:
+    clamp(13px,1.7vw,27px);
+
+  font-weight:900;
+}
+
+#infoBtn::before{
+  content:"i";
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-style:italic;
+
+  font-size:
+    clamp(17px,2vw,32px);
+
+  font-weight:900;
+}
+
+#soundBtn::before{
+  content:"🔊";
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-size:
+    clamp(12px,1.45vw,22px);
+
+  line-height:1;
+}
+
+#soundBtn.muted{
+  --accent:#ff6f8f;
+  --surface1:#4b1b26;
+  --surface2:#17090d;
+  --glow:rgba(255,92,125,.35);
+}
+
+#soundBtn.muted::before{
+  content:"🔇";
+}
+
+#fullBtn::before{
+  content:"⛶";
+
+  position:absolute;
+  inset:0;
+
+  display:grid;
+  place-items:center;
+
+  font-size:
+    clamp(14px,1.75vw,28px);
+
+  font-weight:900;
+}
+
+/* hidden old overlay elements */
+
+#autoBadge,
+#turboBadge,
+#minusVisual,
+#plusVisual,
+#maxVisual,
+#soundVisual{
+  display:none !important;
+}
+
+/* =========================================================
+   RULES WINDOW
+========================================================= */
+
+.modal{
+  position:absolute;
+
+  inset:0;
+
+  z-index:30;
+
+  background:
+    rgba(0,3,8,.88);
+
+  backdrop-filter:
+    blur(9px);
+
+  display:none;
+
+  place-items:center;
+
+  padding:6%;
+}
+
+.modal.open{
+  display:grid;
+}
+
+.card{
+  width:min(820px,85%);
+  max-height:80%;
+
+  overflow:auto;
+
+  padding:3%;
+
+  background:
+    linear-gradient(
+      150deg,
+      #061b26,
+      #07101b 55%,
+      #151024
+    );
+
+  border:
+    2px solid #25f6ff;
+
+  border-radius:24px;
+
+  box-shadow:
+    0 0 45px #00f4ff44,
+    0 0 80px #47ff0040;
+
+  font-family:
+    system-ui,
+    sans-serif;
+}
+
+.card h2{
+  margin:.1em 0 .5em;
+
+  color:#77ff23;
+
+  font:
+    900 clamp(24px,4vw,56px)
+    Impact;
+}
+
+.card h3{
+  color:#38f6ff;
+
+  margin:
+    1em 0 .35em;
+}
+
+.card p,
+.card li{
+  font-size:
+    clamp(12px,1.25vw,18px);
+
+  line-height:1.5;
+}
+
+.close{
+  float:right;
+
+  background:#1aef8f;
+
+  border:0;
+
+  color:#00140e;
+
+  border-radius:999px;
+
+  padding:.7em 1.1em;
+
+  font-weight:900;
+
+  cursor:pointer;
+}
+
+.paygrid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:8px;
+}
+
+.pay{
+  background:#04111b;
+
+  border:
+    1px solid #17516b;
+
+  border-radius:12px;
+
+  padding:10px;
+}
+
+.demo-note{
+  position:absolute;
+
+  z-index:14;
+
+  right:.8%;
+  bottom:.4%;
+
+  font:
+    600 clamp(5px,.5vw,9px)
+    system-ui;
+
+  color:#8ca4ab;
+
+  opacity:.7;
+}
+
+@media (max-aspect-ratio:3/2){
+  #stage{
+    width:100vw;
+    height:auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div
+  id="stage"
+  aria-label="Crazy Lab HTML5 slot game demo"
+>
+
+  <div
+    class="reel-window"
+    id="reels"
+  ></div>
+
+  <div
+    id="dialogueCleanZone"
+    aria-hidden="true"
+  ></div>
+
+  <!-- PORTAL METER -->
+
+  <div id="portalPanel">
+
+    <div id="portalTitle">
+      PORTAL INSTABILITY
+    </div>
+
+    <div id="meter">
+      <div id="meterFill"></div>
+    </div>
+
+    <div id="meterTicks">
+      <span>X2</span>
+      <span>X3</span>
+      <span>X5</span>
+      <span>X10</span>
+      <span>X25</span>
+    </div>
+
+  </div>
+
+  <!-- MULTIPLIER -->
+
+  <div id="multiplierPanel">
+
+    <div id="multiplierLabel">
+      MEGA MULTIPLIER
+    </div>
+
+    <div
+      id="multiplier"
+      class="overlay-text"
+    >
+      X25
+    </div>
+
+  </div>
+
+  <!-- LIVE SCIENTIST TEXT -->
+
+  <div
+    id="speech"
+    aria-live="polite"
+  ></div>
+
+  <!-- GAME STATUS -->
+
+  <div
+    id="status"
+    class="overlay-text"
+  >
+    READY FOR THE EXPERIMENT
+  </div>
+
+  <!-- BALANCE -->
+
+  <div
+    id="balancePanel"
+    class="clean-hud"
+  >
+
+    <div class="clean-label">
+      BALANCE
+    </div>
+
+    <div id="balanceValue">
+      $12,480.00
+    </div>
+
+  </div>
+
+  <!-- BET -->
+
+  <div
+    id="betPanel"
+    class="clean-hud"
+  >
+
+    <div class="clean-label">
+      BET
+    </div>
+
+    <div id="betValue">
+      $10.00
+    </div>
+
+  </div>
+
+  <!-- WIN -->
+
+  <div
+    id="winPanel"
+    class="clean-hud"
+  >
+
+    <div class="clean-label">
+      WIN
+    </div>
+
+    <div id="winValue">
+      $0.00
+    </div>
+
+  </div>
+
+  <!-- FREE SPINS -->
+
+  <div id="freePanel">
+
+    <div id="freeLabel">
+      FREE SPINS
+    </div>
+
+    <div id="freeValue">
+      0
+    </div>
+
+  </div>
+
+  <!-- OLD ELEMENTS HIDDEN -->
+
+  <div
+    id="minusVisual"
+    class="hud-round"
+  >
+    −
+  </div>
+
+  <div
+    id="plusVisual"
+    class="hud-round"
+  >
+    +
+  </div>
+
+  <div id="maxVisual">
+    MAX<br>BET
+  </div>
+
+  <div id="autoBadge">
+    AUTO ON
+  </div>
+
+  <div id="turboBadge">
+    TURBO
+  </div>
+
+  <!-- BIG WIN -->
+
+  <div id="bigWin">
+    MEGA WIN
+
+    <small id="bigWinAmount">
+      $0.00
+    </small>
+  </div>
+
+  <div id="fx"></div>
+
+  <!-- BUTTONS -->
+
+  <button
+    class="hotspot"
+    id="spinBtn"
+    title="Spin"
+    aria-label="Spin"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="autoBtn"
+    title="Auto Spin"
+    aria-label="Auto Spin"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="turboBtn"
+    title="Turbo"
+    aria-label="Turbo"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="minusBtn"
+    title="Decrease bet"
+    aria-label="Decrease bet"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="plusBtn"
+    title="Increase bet"
+    aria-label="Increase bet"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="maxBtn"
+    title="Max bet"
+    aria-label="Max bet"
+  ></button>
+
+  <div
+    id="soundVisual"
+    aria-hidden="true"
+  ></div>
+
+  <button
+    class="hotspot"
+    id="soundBtn"
+    title="Sound"
+    aria-label="Sound"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="fullBtn"
+    title="Fullscreen"
+    aria-label="Fullscreen"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="infoBtn"
+    title="Rules"
+    aria-label="Rules"
+  ></button>
+
+  <button
+    class="hotspot"
+    id="menuBtn"
+    title="Menu"
+    aria-label="Menu"
+  ></button>
+
+  <!-- RULES MODAL -->
+
+  <div
+    class="modal"
+    id="modal"
+  >
+
+    <div class="card">
+
+      <button
+        class="close"
+        id="closeModal"
+      >
+        CLOSE
+      </button>
+
+      <h2>CRAZY LAB</h2>
+
+      <p>
+        HTML5 fan-game demo using fictional
+        credits only. Five reels, three rows,
+        twenty fixed paylines.
+      </p>
+
+      <h3>How it works</h3>
+
+      <ul>
+
+        <li>
+          Wins pay left-to-right on one
+          of 20 paylines.
+        </li>
+
+        <li>
+          WILD substitutes for normal symbols.
+        </li>
+
+        <li>
+          3 / 4 / 5 SCATTERS award
+          10 / 15 / 25 Free Spins.
+        </li>
+
+        <li>
+          During Free Spins, WILD wins receive
+          the active portal multiplier.
+        </li>
+
+        <li>
+          Portal Instability increases as you
+          spin. Filling it triggers a Portal Surge.
+        </li>
+
+      </ul>
+
+      <h3>
+        Approximate pay values
+      </h3>
+
+      <div
+        class="paygrid"
+        id="paygrid"
+      ></div>
+
+      <p style="opacity:.65">
+        Fan-made fictional-credit demonstration.
+        No deposits, withdrawals or
+        real-money wagering.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="demo-note">
+    FAN-MADE DEMO • FICTIONAL CREDITS
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   SYMBOL IMAGE PATHS
+========================================================= */
+
+const SYMBOLS = {
+  orange_flask:
+    "assets/symbols/orange_flask.webp",
+
+  scatter:
+    "assets/symbols/scatter.webp",
+
+  device:
+    "assets/symbols/device.webp",
+
+  wild:
+    "assets/symbols/wild.webp",
+
+  eye:
+    "assets/symbols/eye.webp",
+
+  green_flask:
+    "assets/symbols/green_flask.webp",
+
+  blue_flask:
+    "assets/symbols/blue_flask.webp",
+
+  orange_monster:
+    "assets/symbols/orange_monster.webp",
+
+  pink_monster:
+    "assets/symbols/pink_monster.webp",
+
+  pickle:
+    "assets/symbols/pickle.webp",
+
+  purple_flask:
+    "assets/symbols/purple_flask.webp",
+
+  ufo:
+    "assets/symbols/ufo.webp"
+};
+
+
+/* =========================================================
+   HIGH QUALITY FLASK SVG
+========================================================= */
+
+function svgData(svg){
+  return (
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(svg)
+  );
+}
+
+
+function makeFlaskSymbol({
+  glass="#ffd36b",
+  liquid="#ff9f1f",
+  glow="#ff8c00",
+  bubbles="#fff8bf"
+}){
+
+  return svgData(`
+
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 220 260"
+  >
+
+    <defs>
+
+      <linearGradient
+        id="glassGrad"
+        x1="0"
+        y1="0"
+        x2="1"
+        y2="1"
+      >
+
+        <stop
+          offset="0"
+          stop-color="#fff5cf"
+          stop-opacity="0.95"
+        />
+
+        <stop
+          offset="0.2"
+          stop-color="${glass}"
+          stop-opacity="0.78"
+        />
+
+        <stop
+          offset="1"
+          stop-color="#7b2800"
+          stop-opacity="0.85"
+        />
+
+      </linearGradient>
+
+
+      <linearGradient
+        id="liquidGrad"
+        x1="0"
+        y1="0"
+        x2="0"
+        y2="1"
+      >
+
+        <stop
+          offset="0"
+          stop-color="#ffe45d"
+        />
+
+        <stop
+          offset="0.5"
+          stop-color="${liquid}"
+        />
+
+        <stop
+          offset="1"
+          stop-color="#ff5a00"
+        />
+
+      </linearGradient>
+
+
+      <filter
+        id="glow"
+        x="-50%"
+        y="-50%"
+        width="200%"
+        height="200%"
+      >
+
+        <feGaussianBlur
+          stdDeviation="10"
+          result="blur"
+        />
+
+      </filter>
+
+    </defs>
+
+
+    <g
+      transform="
+        translate(110 130)
+        rotate(18)
+        translate(-110 -130)
+      "
+    >
+
+      <!-- glass bottle -->
+
+      <path
+        d="
+        M92 18h36
+        c7 0 13 6 13 13v18
+        c0 6-2 12-6 16
+        l-8 10
+        c-2 2-3 5-3 8v22
+        c0 4 1 7 3 11
+        l43 76
+        c5 9 5 19 0 28
+        c-7 14-20 22-35 22
+        H84
+        c-15 0-28-8-35-22
+        c-5-9-5-19 0-28
+        l43-76
+        c2-4 3-7 3-11
+        V83
+        c0-3-1-6-3-8
+        l-8-10
+        c-4-4-6-10-6-16
+        V31
+        c0-7 6-13 14-13Z
+        "
+        fill="url(#glassGrad)"
+        stroke="${glow}"
+        stroke-width="6"
+        opacity="0.95"
+      />
+
+
+      <!-- liquid -->
+
+      <path
+        d="
+        M100 122h78
+        l24 42
+        c9 16-2 36-20 36
+        H76
+        c-18 0-29-20-20-36
+        l24-42z
+        "
+        fill="url(#liquidGrad)"
+        opacity="0.97"
+      />
+
+
+      <!-- bottle neck -->
+
+      <path
+        d="
+        M93 33h34
+        c3 0 5 2 5 5v10
+        c0 3-2 5-5 5
+        H93
+        c-3 0-5-2-5-5
+        V38
+        c0-3 2-5 5-5Z
+        "
+        fill="#f0a44a"
+        stroke="#ffcf76"
+        stroke-width="3"
+      />
+
+      <path
+        d="
+        M88 20h44
+        c2 0 4 2 4 4v8
+        c0 2-2 4-4 4
+        H88
+        c-2 0-4-2-4-4v-8
+        c0-2 2-4 4-4Z
+        "
+        fill="#c97b25"
+        stroke="#ffd68e"
+        stroke-width="2"
+      />
+
+
+      <!-- glass reflection -->
+
+      <path
+        d="
+        M80 61
+        c10 12 21 16 33 18
+        c10 2 20 1 28 7
+        c8 7 9 15 9 27v8
+        "
+        fill="none"
+        stroke="#fff7d8"
+        stroke-opacity="0.55"
+        stroke-width="8"
+        stroke-linecap="round"
+      />
+
+      <path
+        d="
+        M76 188
+        c11 8 26 11 37 11
+        c17 0 36-6 46-18
+        "
+        fill="none"
+        stroke="#fff9d7"
+        stroke-opacity="0.42"
+        stroke-width="7"
+        stroke-linecap="round"
+      />
+
+
+      <!-- bubbles -->
+
+      <circle
+        cx="86"
+        cy="157"
+        r="7"
+        fill="${bubbles}"
+        opacity="0.9"
+      />
+
+      <circle
+        cx="114"
+        cy="148"
+        r="5"
+        fill="${bubbles}"
+        opacity="0.72"
+      />
+
+      <circle
+        cx="131"
+        cy="171"
+        r="6"
+        fill="${bubbles}"
+        opacity="0.8"
+      />
+
+      <circle
+        cx="105"
+        cy="177"
+        r="4"
+        fill="${bubbles}"
+        opacity="0.7"
+      />
+
+
+      <!-- long highlight -->
+
+      <path
+        d="
+        M75 58
+        c8 22 7 50 7 82
+        c0 24-3 40-10 61
+        "
+        fill="none"
+        stroke="#ffffff"
+        stroke-opacity="0.4"
+        stroke-width="8"
+        stroke-linecap="round"
+      />
+
+    </g>
+
+  </svg>
+
+  `);
+}
+
+
+/* custom high quality flask variants */
+
+SYMBOLS.orange_flask =
+  makeFlaskSymbol({
+    glass:"#ffcb69",
+    liquid:"#ff9b18",
+    glow:"#ff7f00",
+    bubbles:"#fff8cc"
+  });
+
+SYMBOLS.green_flask =
+  makeFlaskSymbol({
+    glass:"#b6ffb2",
+    liquid:"#49ff5c",
+    glow:"#41ff6d",
+    bubbles:"#efffe7"
+  });
+
+SYMBOLS.blue_flask =
+  makeFlaskSymbol({
+    glass:"#94edff",
+    liquid:"#2cc8ff",
+    glow:"#25d7ff",
+    bubbles:"#e3fbff"
+  });
+
+SYMBOLS.purple_flask =
+  makeFlaskSymbol({
+    glass:"#e1b2ff",
+    liquid:"#be54ff",
+    glow:"#d265ff",
+    bubbles:"#f8e6ff"
+  });
+
+
+/* =========================================================
+   GAME CONFIG
+========================================================= */
+
+const CONFIG = {
+
+  symbols:[
+
+    {
+      id:"wild",
+      w:5,
+      pays:[0,0,6,18,70]
+    },
+
+    {
+      id:"scatter",
+      w:3,
+      pays:[0,0,2,10,50]
+    },
+
+    {
+      id:"pink_monster",
+      w:7,
+      pays:[0,0,4,12,40]
+    },
+
+    {
+      id:"orange_monster",
+      w:8,
+      pays:[0,0,3.5,10,32]
+    },
+
+    {
+      id:"eye",
+      w:9,
+      pays:[0,0,3,9,28]
+    },
+
+    {
+      id:"ufo",
+      w:10,
+      pays:[0,0,2.6,7,22]
+    },
+
+    {
+      id:"device",
+      w:11,
+      pays:[0,0,2.2,6,18]
+    },
+
+    {
+      id:"purple_flask",
+      w:13,
+      pays:[0,0,1.8,5,15]
+    },
+
+    {
+      id:"green_flask",
+      w:14,
+      pays:[0,0,1.6,4.5,13]
+    },
+
+    {
+      id:"blue_flask",
+      w:15,
+      pays:[0,0,1.4,4,11]
+    },
+
+    {
+      id:"orange_flask",
+      w:15,
+      pays:[0,0,1.3,3.5,10]
+    },
+
+    {
+      id:"pickle",
+      w:11,
+      pays:[0,0,2,5.5,16]
+    }
+
+  ],
+
+
+  bets:[
+    1,
+    2,
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
+
+
+  lines:[
+
+    [1,1,1,1,1],
+
+    [0,0,0,0,0],
+
+    [2,2,2,2,2],
+
+    [0,1,2,1,0],
+
+    [2,1,0,1,2],
+
+    [0,0,1,2,2],
+
+    [2,2,1,0,0],
+
+    [1,0,0,0,1],
+
+    [1,2,2,2,1],
+
+    [0,1,1,1,0],
+
+    [2,1,1,1,2],
+
+    [0,1,0,1,0],
+
+    [2,1,2,1,2],
+
+    [1,0,1,0,1],
+
+    [1,2,1,2,1],
+
+    [0,2,0,2,0],
+
+    [2,0,2,0,2],
+
+    [0,2,2,2,0],
+
+    [2,0,0,0,2],
+
+    [1,0,2,0,1]
+
+  ]
+};
+
+
+/* =========================================================
+   PREPARE WEIGHTED SYMBOL POOL
+========================================================= */
+
+const byId =
+  Object.fromEntries(
+    CONFIG.symbols.map(
+      symbol => [
+        symbol.id,
+        symbol
+      ]
+    )
+  );
+
+
+const weighted =
+  CONFIG.symbols.flatMap(
+    symbol =>
+      Array(symbol.w)
+      .fill(symbol.id)
+  );
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let state = {
+
+  balance:12480,
+
+  betIndex:3,
+
+  win:0,
+
+  free:0,
+
+  spinning:false,
+
+  turbo:false,
+
+  auto:false,
+
+  sound:true,
+
+  meter:18,
+
+  mult:25,
+
+  grid:null,
+
+  autoTimer:null
+
+};
+
+
+/* =========================================================
+   DOM REFERENCES
+========================================================= */
+
+const stage =
+  document.getElementById("stage");
+
+const reelsEl =
+  document.getElementById("reels");
+
+const statusEl =
+  document.getElementById("status");
+
+const balanceEl =
+  document.getElementById("balanceValue");
+
+const betEl =
+  document.getElementById("betValue");
+
+const winEl =
+  document.getElementById("winValue");
+
+const freeEl =
+  document.getElementById("freeValue");
+
+const meterFill =
+  document.getElementById("meterFill");
+
+const multEl =
+  document.getElementById("multiplier");
+
+const speech =
+  document.getElementById("speech");
+
+const fx =
+  document.getElementById("fx");
+
+const bigWin =
+  document.getElementById("bigWin");
+
+const bigWinAmount =
+  document.getElementById("bigWinAmount");
+
+
+/* =========================================================
+   SCIENTIST DIALOGUE
+========================================================= */
+
+const quotes = {
+
+  spin:[
+
+    "All right. New experiment.",
+
+    "Let's see what this machine does.",
+
+    "Try not to melt the lab.",
+
+    "Probability, don't embarrass me.",
+
+    "Another spin. For science.",
+
+    "Initiating questionable research.",
+
+    "This is either genius or expensive.",
+
+    "Come on, machine. Impress me.",
+
+    "Opening another probability tunnel.",
+
+    "I'm testing chaos. You're welcome.",
+
+    "Okay. Let's break some statistics.",
+
+    "Recalibrating the bad-decision engine.",
+
+    "One spin closer to a breakthrough.",
+
+    "I give this experiment a 50/50 chance.",
+
+    "Let's make the numbers nervous.",
+
+    "Portal math says: spin again.",
+
+    "Running experiment number... whatever.",
+
+    "The machine owes me a result.",
+
+    "Time for a highly scientific spin.",
+
+    "Observe. This is advanced research."
+
+  ],
+
+
+  win:[
+
+    "Ha! The experiment worked.",
+
+    "Calculated. Mostly.",
+
+    "Science pays today.",
+
+    "That's a respectable result.",
+
+    "Finally, useful data."
+
+  ],
+
+
+  lose:[
+
+    "Bad universe. Next.",
+
+    "Probability is being annoying.",
+
+    "That result goes in the trash.",
+
+    "Again. I need more data.",
+
+    "Statistically disappointing."
+
+  ],
+
+
+  free:[
+
+    "Bonus experiment unlocked.",
+
+    "Free spins. Now we're testing something.",
+
+    "Portal bonus is live."
+
+  ],
+
+
+  surge:[
+
+    "PORTAL SURGE! Reality is unstable!",
+
+    "The portal meter just broke physics."
+
+  ]
+
+};
+
+
+let lastQuote = "";
+
+let speechSwapTimer = null;
+
+
+function pick(array){
+
+  if(array.length === 1){
+    return array[0];
+  }
+
+  let quote;
+
+  do{
+
+    quote =
+      array[
+        Math.floor(
+          Math.random() *
+          array.length
+        )
+      ];
+
+  }while(
+    quote === lastQuote
+  );
+
+  lastQuote = quote;
+
+  return quote;
+}
+
+
+/*
+  Exactly one live sentence
+  is visible at a time.
+*/
+
+function say(quote){
+
+  clearTimeout(
+    speechSwapTimer
+  );
+
+  /*
+    Immediately remove the
+    old sentence.
+  */
+
+  speech.textContent = "";
+
+  speech.classList.add(
+    "change"
+  );
+
+
+  speechSwapTimer =
+    setTimeout(()=>{
+
+      speech.textContent =
+        quote;
+
+      speech.classList.remove(
+        "change"
+      );
+
+    },80);
+}
+
+
+/* =========================================================
+   RANDOM SYMBOL
+========================================================= */
+
+function randSymbol(){
+
+  return weighted[
+    Math.floor(
+      Math.random() *
+      weighted.length
+    )
+  ];
+}
+
+
+/* =========================================================
+   MONEY FORMAT
+========================================================= */
+
+function money(value){
+
+  return "$" +
+    value.toLocaleString(
+      undefined,
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
+}
+
+
+/* =========================================================
+   REEL HELPERS
+========================================================= */
+
+function cell(
+  column,
+  row
+){
+
+  return reelsEl.querySelector(
+    `.cell[data-col="${column}"][data-row="${row}"]`
+  );
+
+}
+
+
+function setCell(
+  column,
+  row,
+  symbolId
+){
+
+  const target =
+    cell(
+      column,
+      row
+    );
+
+  if(!target){
+    return;
+  }
+
+  target.dataset.symbol =
+    symbolId;
+
+  target.innerHTML = `
+    <img
+      draggable="false"
+      src="${SYMBOLS[symbolId]}"
+      alt="${symbolId.replaceAll("_"," ")}"
+    />
+  `;
+
+}
+
+
+function randomGrid(){
+
+  return Array.from(
+    {
+      length:5
+    },
+    () =>
+      Array.from(
+        {
+          length:3
+        },
+        randSymbol
+      )
+  );
+
+}
+
+
+function renderGrid(grid){
+
+  grid.forEach(
+    (
+      column,
+      columnIndex
+    ) => {
+
+      column.forEach(
+        (
+          symbolId,
+          rowIndex
+        ) => {
+
+          setCell(
+            columnIndex,
+            rowIndex,
+            symbolId
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BUILD REELS
+========================================================= */
+
+function buildReels(){
+
+  reelsEl.innerHTML = "";
+
+  for(
+    let column = 0;
+    column < 5;
+    column++
+  ){
+
+    const reel =
+      document.createElement(
+        "div"
+      );
+
+    reel.className =
+      "reel";
+
+    reel.dataset.reel =
+      column;
+
+
+    for(
+      let row = 0;
+      row < 3;
+      row++
+    ){
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+      item.className =
+        "cell";
+
+      item.dataset.col =
+        column;
+
+      item.dataset.row =
+        row;
+
+      reel.appendChild(
+        item
+      );
+
+    }
+
+
+    reelsEl.appendChild(
+      reel
+    );
+
+  }
+
+
+  state.grid =
+    randomGrid();
+
+  renderGrid(
+    state.grid
+  );
+
+}
+
+
+/* =========================================================
+   UPDATE UI
+========================================================= */
+
+function updateUI(){
+
+  balanceEl.textContent =
+    money(
+      state.balance
+    );
+
+  betEl.textContent =
+    money(
+      CONFIG.bets[
+        state.betIndex
+      ]
+    );
+
+  winEl.textContent =
+    money(
+      state.win
+    );
+
+  freeEl.textContent =
+    state.free;
+
+
+  meterFill.style.width =
+    Math.min(
+      100,
+      state.meter
+    ) + "%";
+
+
+  multEl.textContent =
+    "X" + state.mult;
+
+
+  document
+    .getElementById("autoBtn")
+    .classList.toggle(
+      "active",
+      state.auto
+    );
+
+
+  document
+    .getElementById("turboBtn")
+    .classList.toggle(
+      "active",
+      state.turbo
+    );
+
+}
+
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+let audioCtx = null;
+
+
+function tone(
+  frequency = 440,
+  duration = .08,
+  type = "sine",
+  gain = .025,
+  delay = 0
+){
+
+  if(!state.sound){
+    return;
+  }
+
+
+  if(!audioCtx){
+
+    audioCtx =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+  }
+
+
+  const time =
+    audioCtx.currentTime +
+    delay;
+
+
+  const oscillator =
+    audioCtx.createOscillator();
+
+
+  const gainNode =
+    audioCtx.createGain();
+
+
+  oscillator.type =
+    type;
+
+
+  oscillator.frequency.setValueAtTime(
+    frequency,
+    time
+  );
+
+
+  gainNode.gain.setValueAtTime(
+    0,
+    time
+  );
+
+
+  gainNode.gain.linearRampToValueAtTime(
+    gain,
+    time + .008
+  );
+
+
+  gainNode.gain.exponentialRampToValueAtTime(
+    .0001,
+    time + duration
+  );
+
+
+  oscillator
+    .connect(gainNode)
+    .connect(
+      audioCtx.destination
+    );
+
+
+  oscillator.start(
+    time
+  );
+
+
+  oscillator.stop(
+    time +
+    duration +
+    .02
+  );
+
+}
+
+
+function spinSound(){
+
+  [
+    140,
+    165,
+    190,
+    220
+  ].forEach(
+    (
+      frequency,
+      index
+    ) => {
+
+      tone(
+        frequency,
+        .11,
+        "sawtooth",
+        .012,
+        index * .055
+      );
+
+    }
+  );
+
+}
+
+
+function stopSound(index){
+
+  tone(
+    250 + index * 75,
+    .08,
+    "square",
+    .02
+  );
+
+}
+
+
+function winSound(){
+
+  [
+    523,
+    659,
+    784,
+    1046
+  ].forEach(
+    (
+      frequency,
+      index
+    ) => {
+
+      tone(
+        frequency,
+        .2,
+        "triangle",
+        .035,
+        index * .08
+      );
+
+    }
+  );
+
+}
+
+
+function scatterSound(){
+
+  [
+    240,
+    360,
+    540,
+    820
+  ].forEach(
+    (
+      frequency,
+      index
+    ) => {
+
+      tone(
+        frequency,
+        .28,
+        "sine",
+        .04,
+        index * .07
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   REMOVE WIN EFFECTS
+========================================================= */
+
+function clearWins(){
+
+  document
+    .querySelectorAll(
+      ".cell"
+    )
+    .forEach(
+      item => {
+
+        item.classList.remove(
+          "win",
+          "scatter-hit"
+        );
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   PAYLINE EVALUATION
+========================================================= */
+
+function evaluate(
+  grid,
+  bet
+){
+
+  let total = 0;
+
+  let winners = [];
+
+
+  const lineBet =
+    bet /
+    CONFIG.lines.length;
+
+
+  CONFIG.lines.forEach(
+    line => {
+
+      const lineSymbols =
+        line.map(
+          (
+            row,
+            column
+          ) =>
+            grid[column][row]
+        );
+
+
+      let baseSymbol =
+        lineSymbols[0];
+
+
+      if(
+        baseSymbol ===
+        "scatter"
+      ){
+        return;
+      }
+
+
+      if(
+        baseSymbol ===
+        "wild"
+      ){
+
+        baseSymbol =
+          lineSymbols.find(
+            symbol =>
+              symbol !== "wild" &&
+              symbol !== "scatter"
+          )
+          ||
+          "wild";
+
+      }
+
+
+      let count = 0;
+
+      let winningCells = [];
+
+
+      for(
+        let column = 0;
+        column < 5;
+        column++
+      ){
+
+        const symbol =
+          lineSymbols[column];
+
+
+        if(
+          symbol === baseSymbol ||
+          symbol === "wild"
+        ){
+
+          count++;
+
+          winningCells.push([
+            column,
+            line[column]
+          ]);
+
+        }
+        else{
+
+          break;
+
+        }
+
+      }
+
+
+      if(
+        count >= 3
+      ){
+
+        const symbolData =
+          byId[baseSymbol]
+          ||
+          byId.wild;
+
+
+        let payout =
+          symbolData
+            .pays[
+              count - 1
+            ]
+          *
+          lineBet;
+
+
+        const wildCount =
+          winningCells.filter(
+            (
+              [
+                column,
+                row
+              ]
+            ) =>
+              grid[column][row]
+              ===
+              "wild"
+          ).length;
+
+
+        /*
+           Multiplier applies
+           during Free Spins.
+        */
+
+        if(
+          state.free > 0 &&
+          wildCount > 0
+        ){
+
+          payout *=
+            state.mult;
+
+        }
+
+
+        total += payout;
+
+
+        winners.push(
+          ...winningCells
+        );
+
+      }
+
+    }
+  );
+
+
+  /* SCATTERS */
+
+  const scatters = [];
+
+
+  for(
+    let column = 0;
+    column < 5;
+    column++
+  ){
+
+    for(
+      let row = 0;
+      row < 3;
+      row++
+    ){
+
+      if(
+        grid[column][row]
+        ===
+        "scatter"
+      ){
+
+        scatters.push([
+          column,
+          row
+        ]);
+
+      }
+
+    }
+
+  }
+
+
+  if(
+    scatters.length >= 3
+  ){
+
+    total +=
+      bet *
+      byId.scatter.pays[
+        Math.min(
+          4,
+          scatters.length
+        ) - 1
+      ];
+
+  }
+
+
+  const uniqueWinners =
+    [
+      ...new Map(
+        winners.map(
+          item => [
+            item.join(","),
+            item
+          ]
+        )
+      ).values()
+    ];
+
+
+  return {
+    total,
+    winners:uniqueWinners,
+    scatters
+  };
+
+}
+
+
+/* =========================================================
+   WIN PARTICLE BURST
+========================================================= */
+
+function burst(
+  amount = 28
+){
+
+  const rect =
+    stage.getBoundingClientRect();
+
+
+  for(
+    let index = 0;
+    index < amount;
+    index++
+  ){
+
+    const particle =
+      document.createElement(
+        "i"
+      );
+
+    particle.className =
+      "particle";
+
+
+    particle.style.left =
+      (
+        52 +
+        Math.random() *
+        25
+      ) + "%";
+
+
+    particle.style.top =
+      (
+        42 +
+        Math.random() *
+        18
+      ) + "%";
+
+
+    particle.style
+      .setProperty(
+        "--x",
+        (
+          (
+            Math.random() -
+            .5
+          )
+          *
+          rect.width
+          *
+          .55
+        ) + "px"
+      );
+
+
+    particle.style
+      .setProperty(
+        "--y",
+        (
+          (
+            Math.random() -
+            .65
+          )
+          *
+          rect.height
+          *
+          .55
+        ) + "px"
+      );
+
+
+    fx.appendChild(
+      particle
+    );
+
+
+    setTimeout(
+      () =>
+        particle.remove(),
+      1300
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BIG WIN
+========================================================= */
+
+function showBigWin(
+  amount,
+  mega = false
+){
+
+  bigWin.firstChild.nodeValue =
+    mega
+      ?
+      "MEGA WIN"
+      :
+      "BIG WIN";
+
+
+  bigWinAmount.textContent =
+    money(
+      amount
+    );
+
+
+  bigWin.classList.remove(
+    "show"
+  );
+
+
+  void bigWin.offsetWidth;
+
+
+  bigWin.classList.add(
+    "show"
+  );
+
+
+  burst(
+    mega
+      ?
+      70
+      :
+      38
+  );
+
+
+  winSound();
+
+}
+
+
+/* =========================================================
+   PORTAL MULTIPLIER
+========================================================= */
+
+function updateMultiplier(){
+
+  state.mult =
+    state.meter >= 96
+      ?
+      25
+      :
+    state.meter >= 78
+      ?
+      10
+      :
+    state.meter >= 58
+      ?
+      5
+      :
+    state.meter >= 36
+      ?
+      3
+      :
+      2;
+
+}
+
+
+function portalAdvance(){
+
+  state.meter +=
+    5 +
+    Math.floor(
+      Math.random() * 11
+    );
+
+
+  if(
+    state.meter >= 100
+  ){
+
+    state.meter = 0;
+
+
+    say(
+      pick(
+        quotes.surge
+      )
+    );
+
+
+    statusEl.textContent =
+      "PORTAL SURGE — +3 FREE SPINS!";
+
+
+    state.free += 3;
+
+
+    burst(55);
+
+    scatterSound();
+
+  }
+
+
+  updateMultiplier();
+
+}
+
+
+/* =========================================================
+   MAIN SPIN
+========================================================= */
+
+async function spin(){
+
+  if(
+    state.spinning
+  ){
+    return;
+  }
+
+
+  const bet =
+    CONFIG.bets[
+      state.betIndex
+    ];
+
+
+  const isFree =
+    state.free > 0;
+
+
+  if(
+    !isFree &&
+    state.balance < bet
+  ){
+
+    statusEl.textContent =
+      "NOT ENOUGH CREDITS";
+
+
+    say(
+      "Not enough credits for that experiment."
+    );
+
+
+    state.auto =
+      false;
+
+
+    updateUI();
+
+
+    return;
+
+  }
+
+
+  state.spinning =
+    true;
+
+
+  clearWins();
+
+
+  state.win =
+    0;
+
+
+  if(
+    isFree
+  ){
+
+    state.free--;
+
+  }
+  else{
+
+    state.balance -=
+      bet;
+
+  }
+
+
+  updateUI();
+
+
+  statusEl.textContent =
+    isFree
+      ?
+      `FREE SPIN — ${state.free} LEFT`
+      :
+      "EXPERIMENT IN PROGRESS...";
+
+
+  /*
+      ONE live scientist sentence.
+  */
+
+  say(
+    pick(
+      quotes.spin
+    )
+  );
+
+
+  spinSound();
+
+
+  const finalGrid =
+    randomGrid();
+
+
+  const intervals = [];
+
+
+  document
+    .querySelectorAll(
+      ".reel"
+    )
+    .forEach(
+      (
+        reel,
+        column
+      ) => {
+
+        reel.classList.add(
+          "spinning"
+        );
+
+
+        intervals[column] =
+          setInterval(
+            () => {
+
+              for(
+                let row = 0;
+                row < 3;
+                row++
+              ){
+
+                setCell(
+                  column,
+                  row,
+                  randSymbol()
+                );
+
+              }
+
+            },
+            state.turbo
+              ?
+              45
+              :
+              70
+          );
+
+      }
+    );
+
+
+  const baseDelay =
+    state.turbo
+      ?
+      180
+      :
+      520;
+
+
+  const step =
+    state.turbo
+      ?
+      70
+      :
+      170;
+
+
+  /* stop reels one after another */
+
+  for(
+    let column = 0;
+    column < 5;
+    column++
+  ){
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          column === 0
+            ?
+            baseDelay
+            :
+            step
+        )
+    );
+
+
+    clearInterval(
+      intervals[column]
+    );
+
+
+    const reel =
+      reelsEl.children[column];
+
+
+    reel.classList.remove(
+      "spinning"
+    );
+
+
+    for(
+      let row = 0;
+      row < 3;
+      row++
+    ){
+
+      setCell(
+        column,
+        row,
+        finalGrid[column][row]
+      );
+
+    }
+
+
+    stopSound(
+      column
+    );
+
+  }
+
+
+  state.grid =
+    finalGrid;
+
+
+  const result =
+    evaluate(
+      finalGrid,
+      bet
+    );
+
+
+  result.winners.forEach(
+    (
+      [
+        column,
+        row
+      ]
+    ) => {
+
+      cell(
+        column,
+        row
+      )
+      ?.classList
+      .add(
+        "win"
+      );
+
+    }
+  );
+
+
+  result.scatters.forEach(
+    (
+      [
+        column,
+        row
+      ]
+    ) => {
+
+      cell(
+        column,
+        row
+      )
+      ?.classList
+      .add(
+        "scatter-hit"
+      );
+
+    }
+  );
+
+
+  /* FREE SPINS */
+
+  if(
+    result.scatters.length >= 3
+  ){
+
+    const award =
+      result.scatters.length >= 5
+        ?
+        25
+        :
+      result.scatters.length === 4
+        ?
+        15
+        :
+        10;
+
+
+    state.free +=
+      award;
+
+
+    say(
+      pick(
+        quotes.free
+      )
+    );
+
+
+    statusEl.textContent =
+      `PORTAL OPEN! +${award} FREE SPINS`;
+
+
+    scatterSound();
+
+
+    burst(
+      45
+    );
+
+  }
+
+
+  /* WIN */
+
+  if(
+    result.total > 0
+  ){
+
+    state.win =
+      result.total;
+
+
+    state.balance +=
+      result.total;
+
+
+    if(
+      result.total >=
+      bet * 20
+    ){
+
+      showBigWin(
+        result.total,
+        true
+      );
+
+    }
+    else if(
+      result.total >=
+      bet * 7
+    ){
+
+      showBigWin(
+        result.total,
+        false
+      );
+
+    }
+    else{
+
+      winSound();
+
+      burst(
+        18
+      );
+
+    }
+
+
+    if(
+      result.scatters.length < 3
+    ){
+
+      statusEl.textContent =
+        `WIN ${money(result.total)}`;
+
+
+      say(
+        pick(
+          quotes.win
+        )
+      );
+
+    }
+
+  }
+
+  /* LOSS */
+
+  else if(
+    result.scatters.length < 3
+  ){
+
+    statusEl.textContent =
+      state.free > 0
+        ?
+        `FREE SPINS: ${state.free}`
+        :
+        "TRY ANOTHER DIMENSION";
+
+
+    say(
+      pick(
+        quotes.lose
+      )
+    );
+
+  }
+
+
+  portalAdvance();
+
+
+  updateUI();
+
+
+  state.spinning =
+    false;
+
+
+  /*
+     Continue automatically if:
+       - Auto mode is active
+       - or free spins remain
+  */
+
+  if(
+    state.auto ||
+    state.free > 0
+  ){
+
+    clearTimeout(
+      state.autoTimer
+    );
+
+
+    state.autoTimer =
+      setTimeout(
+        () =>
+          spin(),
+        state.turbo
+          ?
+          250
+          :
+          850
+      );
+
+  }
+
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+document
+  .getElementById(
+    "spinBtn"
+  )
+  .onclick =
+    spin;
+
+
+/* decrease bet */
+
+document
+  .getElementById(
+    "minusBtn"
+  )
+  .onclick =
+    () => {
+
+      if(
+        !state.spinning
+      ){
+
+        state.betIndex =
+          Math.max(
+            0,
+            state.betIndex - 1
+          );
+
+
+        updateUI();
+
+      }
+
+    };
+
+
+/* increase bet */
+
+document
+  .getElementById(
+    "plusBtn"
+  )
+  .onclick =
+    () => {
+
+      if(
+        !state.spinning
+      ){
+
+        state.betIndex =
+          Math.min(
+            CONFIG.bets.length - 1,
+            state.betIndex + 1
+          );
+
+
+        updateUI();
+
+      }
+
+    };
+
+
+/* max bet */
+
+document
+  .getElementById(
+    "maxBtn"
+  )
+  .onclick =
+    () => {
+
+      if(
+        !state.spinning
+      ){
+
+        state.betIndex =
+          CONFIG.bets.length - 1;
+
+
+        updateUI();
+
+      }
+
+    };
+
+
+/* turbo */
+
+document
+  .getElementById(
+    "turboBtn"
+  )
+  .onclick =
+    () => {
+
+      state.turbo =
+        !state.turbo;
+
+
+      updateUI();
+
+
+      tone(
+        state.turbo
+          ?
+          880
+          :
+          420,
+        .08
+      );
+
+    };
+
+
+/* auto spin */
+
+document
+  .getElementById(
+    "autoBtn"
+  )
+  .onclick =
+    () => {
+
+      state.auto =
+        !state.auto;
+
+
+      updateUI();
+
+
+      if(
+        state.auto &&
+        !state.spinning
+      ){
+
+        spin();
+
+      }
+
+    };
+
+
+/* =========================================================
+   SOUND
+========================================================= */
+
+function syncSoundUI(){
+
+  const soundBtn =
+    document.getElementById(
+      "soundBtn"
+    );
+
+
+  soundBtn.classList.toggle(
+    "muted",
+    !state.sound
+  );
+
+
+  const label =
+    state.sound
+      ?
+      "Mute sound"
+      :
+      "Unmute sound";
+
+
+  soundBtn.setAttribute(
+    "aria-label",
+    label
+  );
+
+
+  soundBtn.title =
+    label;
+
+}
+
+
+document
+  .getElementById(
+    "soundBtn"
+  )
+  .onclick =
+    () => {
+
+      state.sound =
+        !state.sound;
+
+
+      syncSoundUI();
+
+
+      if(
+        state.sound
+      ){
+
+        tone(
+          660,
+          .1
+        );
+
+      }
+
+    };
+
+
+syncSoundUI();
+
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+
+document
+  .getElementById(
+    "fullBtn"
+  )
+  .onclick =
+    async () => {
+
+      try{
+
+        if(
+          !document.fullscreenElement
+        ){
+
+          await stage.requestFullscreen();
+
+        }
+        else{
+
+          await document.exitFullscreen();
+
+        }
+
+      }
+      catch(error){
+
+        console.log(
+          error
+        );
+
+      }
+
+    };
+
+
+/* =========================================================
+   RULES WINDOW
+========================================================= */
+
+const modal =
+  document.getElementById(
+    "modal"
+  );
+
+
+document
+  .getElementById(
+    "infoBtn"
+  )
+  .onclick =
+    () => {
+
+      modal.classList.add(
+        "open"
+      );
+
+    };
+
+
+document
+  .getElementById(
+    "menuBtn"
+  )
+  .onclick =
+    () => {
+
+      modal.classList.add(
+        "open"
+      );
+
+    };
+
+
+document
+  .getElementById(
+    "closeModal"
+  )
+  .onclick =
+    () => {
+
+      modal.classList.remove(
+        "open"
+      );
+
+    };
+
+
+modal.addEventListener(
+  "click",
+  event => {
+
+    if(
+      event.target === modal
+    ){
+
+      modal.classList.remove(
+        "open"
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   KEYBOARD
+========================================================= */
+
+window.addEventListener(
+  "keydown",
+  event => {
+
+    if(
+      event.code === "Space"
+    ){
+
+      event.preventDefault();
+
+      spin();
+
+    }
+
+
+    if(
+      event.code === "Escape"
+    ){
+
+      modal.classList.remove(
+        "open"
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   PAYTABLE
+========================================================= */
+
+document
+  .getElementById(
+    "paygrid"
+  )
+  .innerHTML =
+    CONFIG.symbols
+
+    .filter(
+      symbol =>
+        symbol.id !==
+        "scatter"
+    )
+
+    .map(
+      symbol => `
+
+        <div class="pay">
+
+          <b>
+            ${
+              symbol.id
+              .replaceAll(
+                "_",
+                " "
+              )
+              .toUpperCase()
+            }
+          </b>
+
+          <br>
+
+          3× ${symbol.pays[2]}
+          ·
+          4× ${symbol.pays[3]}
+          ·
+          5× ${symbol.pays[4]}
+
+        </div>
+
+      `
+    )
+
+    .join("");
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+buildReels();
+
+updateUI();
+
+</script>
+
+</body>
+</html>

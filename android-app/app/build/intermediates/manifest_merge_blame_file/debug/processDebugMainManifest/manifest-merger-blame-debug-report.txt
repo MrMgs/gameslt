@@ -1,0 +1,56 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.quantumooze.slot"
+4    android:versionCode="12"
+5    android:versionName="1.6.5" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="23"
+9        android:targetSdkVersion="35" />
+10
+11    <application
+11-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:3:5-23:19
+12        android:allowBackup="false"
+12-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:4:9-36
+13        android:debuggable="true"
+14        android:extractNativeLibs="false"
+15        android:hardwareAccelerated="true"
+15-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:5:9-43
+16        android:icon="@drawable/app_icon"
+16-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:6:9-42
+17        android:label="Quantum Ooze"
+17-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:7:9-37
+18        android:roundIcon="@drawable/app_icon"
+18-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:8:9-47
+19        android:supportsRtl="true"
+19-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:9:9-35
+20        android:theme="@style/Theme.QuantumOoze"
+20-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:10:9-49
+21        android:usesCleartextTraffic="false" >
+21-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:11:9-45
+22        <activity
+22-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:12:9-22:20
+23            android:name="com.quantumooze.slot.MainActivity"
+23-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:13:13-41
+24            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|uiMode"
+24-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:14:13-109
+25            android:exported="true"
+25-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:15:13-36
+26            android:keepScreenOn="true"
+26-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:16:13-40
+27            android:screenOrientation="fullSensor" >
+27-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:17:13-51
+28            <intent-filter>
+28-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:18:13-21:29
+29                <action android:name="android.intent.action.MAIN" />
+29-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:19:17-69
+29-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:19:25-66
+30
+31                <category android:name="android.intent.category.LAUNCHER" />
+31-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:20:17-77
+31-->C:\Users\tahao\Desktop\gameslt\android-app\app\src\main\AndroidManifest.xml:20:27-74
+32            </intent-filter>
+33        </activity>
+34    </application>
+35
+36</manifest>

@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "C:\\Users\\tahao\\.gradle\\daemon\\8.11.1\\com.quantumooze.slot.app-debug-4:\\mipmap_ic_launcher.xml.flat",
+        "source": "C:\\Users\\tahao\\.gradle\\daemon\\8.11.1\\com.quantumooze.slot.app-main-6:\\mipmap\\ic_launcher.xml"
+    },
+    {
+        "merged": "C:\\Users\\tahao\\.gradle\\daemon\\8.11.1\\com.quantumooze.slot.app-debug-4:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\tahao\\.gradle\\daemon\\8.11.1\\com.quantumooze.slot.app-main-6:\\drawable\\ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "C:\\Users\\tahao\\.gradle\\daemon\\8.11.1\\com.quantumooze.slot.app-debug-4:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\tahao\\.gradle\\daemon\\8.11.1\\com.quantumooze.slot.app-main-6:\\mipmap-anydpi-v26\\ic_launcher.xml"
+    },
+    {
+        "merged": "com.quantumooze.slot.app-debug-4:/drawable-nodpi_app_icon.png.flat",
+        "source": "com.quantumooze.slot.app-main-6:/drawable-nodpi/app_icon.png"
+    }
+]

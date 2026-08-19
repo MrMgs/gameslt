@@ -1,0 +1,7 @@
+R_DEF: Internal format may change without notice
+local
+color icon_background
+drawable app_icon
+drawable ic_launcher_foreground
+mipmap ic_launcher
+style Theme.QuantumOoze

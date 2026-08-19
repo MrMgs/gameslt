@@ -1,0 +1,5 @@
+com.quantumooze.slot:style/Theme.QuantumOoze = 0x7f040000
+com.quantumooze.slot:mipmap/ic_launcher = 0x7f030000
+com.quantumooze.slot:drawable/ic_launcher_foreground = 0x7f020001
+com.quantumooze.slot:drawable/app_icon = 0x7f020000
+com.quantumooze.slot:color/icon_background = 0x7f010000
